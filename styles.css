@@ -93,3 +93,15 @@
 @media(max-width:360px){.playing-header .brand>span:last-child{max-width:85px;font-size:.62rem}.playing-header .sound-toggle{font-size:.6rem}.scene-status .portal-distance{font-size:.58rem}}
 @media(max-width:700px){.scene-status .scene-energy{font-size:.65rem}.scene-status .portal-distance{font-size:.7rem}.object-btn{font-size:.82rem}.playing-header .sound-toggle{min-height:44px}.scene-status meter{width:36px}}
 @media(max-width:360px){.scene-status .portal-distance{font-size:.62rem}.scene-status .scene-energy{font-size:.6rem}}
+
+
+/* Matching header controls and a compact, touch-friendly return link. */
+.playing-header .sound-toggle,.playing-header .timer{
+ display:inline-flex;align-items:center;justify-content:center;
+ width:88px;min-width:88px;height:44px;min-height:44px;
+ padding:0 8px;border-radius:8px;line-height:1;white-space:nowrap;
+}
+@media(max-width:700px){
+ .playing-header .sound-toggle,.playing-header .timer{width:68px;min-width:68px;height:44px;min-height:44px;padding:0 4px}
+ .back-to-scene{width:auto;min-height:44px;padding:0;margin:-10px 0 4px;border:0}
+}
