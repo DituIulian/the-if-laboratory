@@ -1,0 +1,36 @@
+import {chromium} from 'playwright';
+import assert from 'node:assert/strict';
+const browser=await chromium.launch({channel:'chrome',headless:true});
+try {
+ const page=await browser.newPage({viewport:{width:390,height:844}});
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('http://localhost:4173');
+ await page.clock.install();
+ await page.locator('#team-name').fill('Feedback Explorers');
+ await page.locator('#join-form button[type=submit]').click();await page.locator('#begin').click();
+ await page.locator('.hotspot[data-object="0"]').click();
+ await page.locator('[data-answer="1"]').click();await page.locator('#check-answer').click();
+ assert.equal(await page.locator('#retry-seconds').innerText(),'15');
+ await page.screenshot({path:'test-results/mobile-cooldown.png',fullPage:true});
+ await page.clock.fastForward(5000);await page.reload();
+ await page.locator('.object-bar [data-object="1"]').click();
+ assert.equal(await page.locator('[data-answer="1"]').isDisabled(),true);
+ assert.equal(await page.locator('#retry-seconds').innerText(),'10');
+ await page.clock.fastForward(10000);
+ await page.locator('[data-answer="1"]').click();await page.locator('#check-answer').click();
+ assert.equal(await page.locator('.discovery-impact.correct').count(),1);
+ await page.locator('.object-bar [data-object="0"]').click();
+ await page.locator('[data-answer="0"]').click();await page.locator('#check-answer').click();
+ assert.equal(await page.locator('.scene-energy b').innerText(),'100%');
+ await page.locator('.object-bar [data-object="map"]').click();
+ await page.locator('[data-cipher="1"]').click();assert.equal(await page.locator('[data-cipher="0"]').isDisabled(),true);
+ await page.clock.fastForward(18000);await page.locator('[data-cipher="0"]').click();
+ assert.equal(await page.locator('.portal-ready').count(),1);
+ assert.equal(await page.locator('.map-node.recovered').count(),1);
+ await page.locator('.map-node.recovered').click();assert.equal(await page.locator('dialog').isVisible(),true);await page.locator('#close-map').click();
+ await page.locator('#sound-toggle').click();assert.equal(await page.locator('#sound-toggle').getAttribute('aria-pressed'),'false');
+ await page.reload();assert.equal(await page.locator('#sound-toggle').getAttribute('aria-pressed'),'false');
+ await page.setViewportSize({width:1440,height:1000});await page.screenshot({path:'test-results/interactive-laboratory.png',fullPage:true});
+ assert.deepEqual(errors,[]);
+ console.log('Feedback QA passed: cooldown across refresh and objects, cipher cooldown, energy, portal activation, map inspection and persistent mute.');
+}finally{await browser.close();}
