@@ -50,6 +50,13 @@ test('database schema, teacher authorization, team isolation and live board',asy
  await db.exec(await readFile('supabase/schema.sql','utf8'));
  assert.equal((await rpc('select public.teacher_report($1) result',[session.id])).teams.length,2);
  await uid(2);const archivedSave=await rpc('select public.save_lab_progress($1,$2) result',[team.id,JSON.stringify(newState('Overwrite','🦊'))]);assert.equal(archivedSave.status,'escaped');
+
+ await uid(3);await assert.rejects(rpc('select public.delete_lab($1) result',[session.id]),/Teacher access/);
+ await uid(2);await assert.rejects(rpc('select public.delete_lab($1) result',[session.id]),/Teacher access/);
+ await uid(1);await rpc('select public.delete_lab($1) result',[session.id]);
+ assert.equal((await db.query('select count(*)::integer n from public.lab_teams where session_id=$1',[session.id])).rows[0].n,0);
+ const kept=await rpc('select public.teacher_report($1) result',[next.id]);assert.equal(kept.session.title,'Next class');assert.equal(kept.session.parent_id,null);
+ await assert.rejects(rpc('select public.teacher_report($1) result',[session.id]),/Session not found/);
  } finally { await db.close(); }
 });
 function uuidFor(n){return '00000000-0000-0000-0000-'+String(n).padStart(12,'0');}

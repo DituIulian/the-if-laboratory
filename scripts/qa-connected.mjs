@@ -35,7 +35,7 @@ try {
       const id=request.headers().authorization?.replace('Bearer ','')||'';
       await db.query(`select set_config('test.uid',$1,false)`,[id]);
       const name=path.split('/').at(-1);
-      assert.ok(['teacher_sessions','create_lab','set_lab_open','join_lab','save_lab_progress','lab_board','teacher_report','reset_lab','archive_lab'].includes(name));
+      assert.ok(['teacher_sessions','create_lab','set_lab_open','join_lab','save_lab_progress','lab_board','teacher_report','reset_lab','archive_lab','delete_lab'].includes(name));
       const values=Object.values(body).map(v=>typeof v==='object'?JSON.stringify(v):v);
       const args=Object.keys(body).map((k,i)=>`${k} => $${i+1}`).join(',');
       data=(await db.query(`select public.${name}(${args}) as result`,values)).rows[0].result;
@@ -73,6 +73,12 @@ try {
  assert.match(await teacher.page.locator('#sessions').innerText(),/Archived/);assert.match(await teacher.page.locator('.learning-report').innerText(),/Quantum Owls/);
  await teacher.page.screenshot({path:'test-results/history-connected.png',fullPage:true});
  await student.page.waitForFunction(()=>document.querySelector('h1')?.textContent.includes('archives'),{},{timeout:20000});
+
+ await teacher.page.locator('[data-delete]').click();await teacher.page.locator('#cancel-delete').click();assert.equal(await teacher.page.locator('.session-code').count(),1);
+ await teacher.page.locator('[data-delete]').click();await teacher.page.locator('dialog button[type=submit]').click();
+ await teacher.page.locator('#sessions .empty-state').waitFor();await teacher.page.reload();await teacher.page.locator('[data-view=history]').click();await teacher.page.locator('#sessions .empty-state').waitFor();
+ await teacher.page.locator('[data-view=active]').click();assert.equal((await teacher.page.locator('.session-code').innerText()).trim(),nextCode);
  assert.deepEqual(errors,[]);
+
  console.log('Connected UI QA passed: teacher sign-in, session, QR, two isolated teams, shared board, refresh, close entry, CSV export. HTTP/auth was simulated; PostgreSQL functions were real.');
 } finally {await browser.close();await db.close();}

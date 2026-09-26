@@ -101,7 +101,7 @@ Netlify reconstruiește automat site-ul. Dacă modifici schema SQL, rulează sep
 - **Fastest typical solution** cere minimum două echipe cu răspuns corect cronometrat. Timpul include discuția, reîncercările și pauzele. Rapiditatea singură nu dovedește că o întrebare a fost cea mai ușoară.
 - **Close entry** blochează echipele noi, dar le lasă pe cele înscrise să continue.
 - **Reset for another class** arhivează sesiunea veche, oprește echipele încă active și creează o sesiune NOUĂ, cu alt cod, nume și durată. Rezultatele vechi rămân în **History**, cu data creării și arhivării. Poți căuta după nume, cod sau dată.
-- **End & archive** încheie clasa fără să creeze alta. **Export results** descarcă răspunsurile în CSV. Nu există un buton care șterge istoricul.
+- **End & archive** încheie clasa fără să creeze alta. **Export results** descarcă răspunsurile în CSV. **Delete class** șterge definitiv clasa și rezultatele ei după confirmare; clasele următoare create prin Reset rămân intacte. Pentru un proiect Supabase existent, rulează o dată fișierul `supabase/enable-class-deletion.sql` în SQL Editor.
 
 În Supabase istoricul este păstrat în baza de date și se vede de pe alt calculator după autentificare. Fără Supabase, istoricul rămâne doar în browserul folosit; nu șterge datele browserului dacă vrei să-l păstrezi. Sesiunile locale nu se transferă automat în Supabase.
 

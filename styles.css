@@ -105,3 +105,5 @@
  .playing-header .sound-toggle,.playing-header .timer{width:68px;min-width:68px;height:44px;min-height:44px;padding:0 4px}
  .back-to-scene{width:auto;min-height:44px;padding:0;margin:-10px 0 4px;border:0}
 }
+
+.delete-class{color:#ffb5a5}.btn.danger{background:#b94034;color:white}.btn.danger:hover{background:#9e3026}

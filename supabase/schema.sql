@@ -206,5 +206,17 @@ as $$ declare s public.lab_sessions; teams jsonb; begin
 end $$;
 revoke all on function public.archive_lab(uuid),public.reset_lab(uuid,text,integer),public.teacher_report(uuid) from public,anon,authenticated;
 grant execute on function public.archive_lab(uuid),public.reset_lab(uuid,text,integer),public.teacher_report(uuid) to authenticated;
+create or replace function public.delete_lab(p_session uuid) returns void
+language plpgsql security definer set search_path = public
+as $$ begin
+ if not public.is_lab_teacher() or not exists(
+   select 1 from public.lab_sessions where id=p_session and teacher_id=auth.uid()
+ ) then raise exception 'Teacher access required for this session.'; end if;
+ -- Keep subsequent classes created through Reset; detach only their history link.
+ update public.lab_sessions set parent_id=null where parent_id=p_session;
+ delete from public.lab_sessions where id=p_session and teacher_id=auth.uid();
+ -- Associated teams are removed by the existing ON DELETE CASCADE foreign key.
+end $$;
+revoke all on function public.delete_lab(uuid) from public,anon,authenticated;
+grant execute on function public.delete_lab(uuid) to authenticated;
 commit;
-

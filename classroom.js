@@ -21,3 +21,17 @@ export async function archiveSession(id){
 }
 export async function resetSession(id,title,minutes){if(api.configured)return api.rpc('reset_lab',{p_session:id,p_title:title,p_minutes:minutes});await archiveSession(id);return createSession(title,minutes);}
 export async function sessionReport(id){if(api.configured)return api.rpc('teacher_report',{p_session:id});const session=localSessions().find(s=>s.id===id);if(!session)throw Error('Session not found.');return {session,teams:localTeams().filter(t=>(t.code||'DEMO')===session.code).map(t=>({id:t.teamId,name:t.name,emoji:t.emoji,state:t}))};}
+
+export async function deleteSession(id){
+ if(api.configured)return api.rpc('delete_lab',{p_session:id});
+ const sessions=localSessions(),session=sessions.find(s=>s.id===id);
+ if(!session)throw Error('Session not found.');
+ const deleted=read('iflab-deleted-codes',[]);if(!deleted.includes(session.code))deleted.push(session.code);
+ write('iflab-deleted-codes',deleted);
+ for(const team of localTeams().filter(t=>(t.code||'DEMO')===session.code)){
+  localStorage.removeItem(team.key);
+  if(localStorage.getItem('iflab-last')===team.teamId)localStorage.removeItem('iflab-last');
+  if(sessionStorage.getItem('iflab-active')===team.teamId)sessionStorage.removeItem('iflab-active');
+ }
+ write('iflab-sessions',sessions.filter(s=>s.id!==id));
+}
